@@ -1,4 +1,6 @@
 'use strict';
+
+const mongoose = require('mongoose');
 const Address = require('../../models/address');
 const User = require('../../models/user');
 
@@ -6,7 +8,9 @@ const getUsers = async(req, res) => {
   let status = 200;
   let response = [];
   try {
-    const users = await User.model.find({}, '-_id -__v');
+    const users = await User.model
+      .find({}, '-_id -__v')
+      .populate('address', '-_id -__v');
     response = users;
     if (users.length < 1) {
       status = 204;
@@ -24,7 +28,9 @@ const getUsersById = async(req, res) => {
   let status = 200;
   let response = [];
   try {
-    const user = await User.model.findOne({ id: userId }, '-_id -__v');
+    const user = await User.model
+      .findOne({ id: userId }, '-_id -__v')
+      .populate('address', '-_id -__v');
     response = user;
     if (!user) {
       status = 204;
@@ -54,17 +60,24 @@ const createUsers = async(req, res) => {
   if (id && name && email && birthDate &&  address) {
     try {
       //  Address creation
-      const newAddress = new Address.model(address);
-      await newAddress.save();
+      const addressModel = new Address.model(address);
+      console.log('addressModel', addressModel);
+      const newAddress = await addressModel.save();
+      const newAddressId = newAddress._id;
+      // console.log('newAddress', newAddress, newAddressId, mongoose.Types.ObjectId(newAddressId));
+      // console.log('+++++', newAddress.__id);
       //  User creation
-      const user = new User.model({
+      const newUser = new User.model({
         id,
         name,
         email,
         birthDate,
-        address: newAddress
+        address: mongoose.Types.ObjectId(newAddressId)
       });
-      await user.save();
+
+      // console.log('+++++---', newAddress._id);
+      console.log('newUser', newUser);
+      await newUser.save();
 
       status = 200;
       response.error = false;
@@ -88,29 +101,24 @@ const updateUsersById = async(req, res) => {
     address,
     ...userFromBody
   } = body;
-  const {
-    _id,
-    __v,
-    ...addressFromBody
-  } = address;
   let status = 200;
   let response = {};
   try {
-    const user = await User.model.findOne({ id: userId }, '-_id -__v');
+    const user = await User.model.findOne({ id: userId });
     if (user) {
-      const userAddress = user.address;
-      const updatedAddress = await Address.model.findOneAndUpdate(
-        { id: userAddress.id },
-        addressFromBody,
+      const updatedAddress = await Address.model.findByIdAndUpdate(
+        user.address,
+        address,
         { new: true }
       );
-      const updatedUser = await User.model.findOneAndUpdate(
-        { id: userId },
-        { ...userFromBody, address: updatedAddress },
-        { new: true }
-      );
+      const updatedUser = await User.model
+        .findOneAndUpdate(
+          { id: userId },
+          { ...userFromBody },
+          { new: true, select: '-_id -__v' }
+        )
+        .populate('address', '-_id -__v');
       response = updatedUser;
-
     }
   } catch (err) {
     status = 500;
@@ -130,7 +138,7 @@ const deleteUsersById = async(req, res) => {
   if (userId && !isNaN(userId)) {
     try {
       const user = await User.model.findOne({ id: userId });
-      const addressDeletedResult = await Address.model.deleteOne({ id: user.address.id });
+      const addressDeletedResult = await Address.model.deleteOne({ _id: user.address });
       if (addressDeletedResult.deletedCount > 0) {
         const userDeletedResult =  await User.model.deleteOne({ id: userId });
         if (userDeletedResult.deletedCount > 0) {
