@@ -30,6 +30,11 @@ Resful API to manage users. Database is done ina MongoDB database.
    $ npm run dev
 ```
 
+## Run tests
+```sh
+   $ npm run test
+```
+
 ## Cloud location
 The API is hosted in a EC2 Server
 URL: http://18.217.235.43:8080
