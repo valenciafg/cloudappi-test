@@ -28,7 +28,10 @@ const swaggerOptions = {
       contact: {
         name: "Víctor Valencia"
       },
-      servers: ["http://localhost:8080"]
+      servers: [
+        "http://localhost:8080",
+        "http://18.217.235.43:8080"
+      ]
     }
   },
   // ['.routes/*.js']
