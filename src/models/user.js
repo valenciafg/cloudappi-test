@@ -7,7 +7,7 @@ const schema = new Schema({
   id: { type: Number, unique: true, required: true },
   name: { type: String,  required: true },
   email: { type: String,  required: true },
-  birthDate: { type: String,  required: true },
+  birthDate: { type: Date,  required: true },
   address: { type: Schema.Types.ObjectId, ref:'Address' }
 });
 

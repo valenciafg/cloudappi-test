@@ -5,7 +5,7 @@ const Address = require('../../models/address');
 const User = require('../../models/user');
 
 const getUsers = async(req, res) => {
-  let status = 200;
+  let status = 500;
   let response = [];
   try {
     const users = await User.model
@@ -106,20 +106,22 @@ const updateUsersById = async(req, res) => {
   try {
     const user = await User.model.findOne({ id: userId });
     if (user) {
-      const updatedAddress = await Address.model.findByIdAndUpdate(
-        user.address,
+      const updatedAddress = await Address.model.findOneAndUpdate(
+        { _id: user.address, id:address.id },
         address,
         { new: true }
       );
+      const { id, ...userFromBodyWithoutId } = userFromBody;
       const updatedUser = await User.model
         .findOneAndUpdate(
           { id: userId },
-          { ...userFromBody },
+          { ...userFromBodyWithoutId },
           { new: true, select: '-_id -__v' }
         )
         .populate('address', '-_id -__v');
       response = updatedUser;
     }
+   // response = user;
   } catch (err) {
     status = 500;
     response = `Error ${err}`;

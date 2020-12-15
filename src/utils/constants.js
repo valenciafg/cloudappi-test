@@ -30,7 +30,7 @@ const swaggerOptions = {
     }
   },
   // ['.routes/*.js']
-  apis: ["app.js"]
+  apis: ["src/server/index.js", "src/routes/*.js"]
 };
 
 module.exports = {
