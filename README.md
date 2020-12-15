@@ -36,3 +36,6 @@ URL: http://18.217.235.43:8080
 
 ## End-points documentation:
 http://18.217.235.43:8080/api-docs
+
+## Postman tests
+https://s3.us-east-2.amazonaws.com/bucket.valenciafg.public/CloudAppi+-+V%C3%ADctor+Valencia.postman_collection.json
